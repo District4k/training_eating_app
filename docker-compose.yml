@@ -1,0 +1,82 @@
+version: "3.9"  # This is already the latest stable version
+
+services:
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      NODE_ENV: development
+      NODE_OPTIONS: "--openssl-legacy-provider"
+    healthcheck: # Add health checking
+      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./:/opt/app/
+      - nmodules:/opt/app/frontend/node_modules
+    stdin_open: true  # Useful for interactive commands
+    tty: true         # Helps keep the container running if required
+    networks:
+      - app-network  # Add explicit network
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "8885:8885"
+    healthcheck: # Add health checking
+      test: [ "CMD", "curl", "-f", "http://localhost:8885" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./:/opt/app
+    depends_on:
+      - db
+    environment:
+      APP_ENV: development  # Example custom environment variable
+    restart: unless-stopped  # Auto-restart policy
+    networks:
+      - app-network  # Add explicit network
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    #    healthcheck:  # Add health checking
+    #      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+    #      interval: 30s
+    #      timeout: 10s
+    #      retries: 3
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network  # Add explicit network
+    environment:
+      MYSQL_USER: artify
+      MYSQL_DATABASE: artify
+      MYSQL_PASSWORD: artifypwd
+      MYSQL_ROOT_PASSWORD: rootpwd
+    restart: unless-stopped  # Auto-restart policy
+
+  smtp4dev:
+    image: rnwood/smtp4dev
+    ports:
+      - "25:25"
+      - "80:80"
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+  nmodules:
+
+networks: # Add explicit network definition
+  app-network:
+    driver: bridge
