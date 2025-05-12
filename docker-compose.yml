@@ -1,4 +1,4 @@
-version: "3.9"  # This is already the latest stable version
+version: "3.9"
 
 services:
   frontend:
@@ -11,7 +11,7 @@ services:
       CHOKIDAR_USEPOLLING: "true"
       NODE_ENV: development
       NODE_OPTIONS: "--openssl-legacy-provider"
-    healthcheck: # Add health checking
+    healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
       interval: 30s
       timeout: 10s
@@ -19,8 +19,8 @@ services:
     volumes:
       - ./:/opt/app/
       - nmodules:/opt/app/frontend/node_modules
-    stdin_open: true  # Useful for interactive commands
-    tty: true         # Helps keep the container running if required
+    stdin_open: true 
+    tty: true 
     networks:
       - app-network  # Add explicit network
 
@@ -59,9 +59,9 @@ services:
     networks:
       - app-network  # Add explicit network
     environment:
-      MYSQL_USER: artify
-      MYSQL_DATABASE: artify
-      MYSQL_PASSWORD: artifypwd
+      MYSQL_USER: art
+      MYSQL_DATABASE: art
+      MYSQL_PASSWORD: artpwd
       MYSQL_ROOT_PASSWORD: rootpwd
     restart: unless-stopped  # Auto-restart policy
 
